@@ -5,4 +5,6 @@ export function CreateRoom():Promise<string>;
 
 export function Greet(arg1:string):Promise<string>;
 
+export function RoomAlive():Promise<string>;
+
 export function StopSrv():Promise<boolean>;

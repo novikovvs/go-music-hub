@@ -50,3 +50,7 @@ func (a *App) CreateRoom() string {
 func (a *App) StopSrv() bool {
 	return StopServer()
 }
+
+func (a *App) RoomAlive() string {
+	return RoomExist()
+}

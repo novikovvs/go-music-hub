@@ -3,22 +3,42 @@ package main
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/tnychn/gotube"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 )
 
 var quit chan os.Signal
 var quitState chan bool
+var roomAddr string
+
+type SubmitRequest struct {
+	VideoId string `json:"video_id"`
+	Url     string `json:"url"`
+}
 
 func StartRoom() string {
 	quitState = make(chan bool, 1)
-	go startServer("8084")
-	return getAddr("8084")
+	port, _ := getFreePort()
+
+	go startServer(strconv.Itoa(port))
+
+	roomAddr = getAddr(strconv.Itoa(port))
+
+	return roomAddr
+}
+
+func RoomExist() string {
+	if len(roomAddr) > 0 {
+		return roomAddr
+	}
+	return ""
 }
 
 func StopServer() bool {
@@ -27,30 +47,38 @@ func StopServer() bool {
 }
 
 func startServer(port string) {
+	defer func() {
+		roomAddr = ""
+	}()
+
 	router := gin.Default()
+	router.LoadHTMLFiles("./user-app/dist/spa/index.html")
+	router.Static("/assets", "./user-app/dist/spa/assets/")
 	router.GET("/", func(c *gin.Context) {
-		time.Sleep(5 * time.Second)
-		c.String(http.StatusOK, "Welcome Gin Server")
+		c.HTML(http.StatusOK, "index.html", gin.H{})
+	})
+	router.POST("/submit", func(c *gin.Context) {
+
+		video, err := gotube.NewVideo("9vc-I9rvGsw", true)
+
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
 	})
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + port,
 		Handler: router.Handler(),
 	}
 
 	go func() {
-		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
 	quit = make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutdown Server ...")
@@ -83,4 +111,16 @@ func getAddr(port string) string {
 		}
 	}
 	return ""
+}
+
+func getFreePort() (port int, err error) {
+	var a *net.TCPAddr
+	if a, err = net.ResolveTCPAddr("tcp", "localhost:0"); err == nil {
+		var l *net.TCPListener
+		if l, err = net.ListenTCP("tcp", a); err == nil {
+			defer l.Close()
+			return l.Addr().(*net.TCPAddr).Port, nil
+		}
+	}
+	return
 }
