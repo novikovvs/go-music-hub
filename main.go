@@ -2,14 +2,16 @@ package main
 
 import (
 	"embed"
-	"log"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"go.uber.org/zap"
+	"log"
+	"os"
 )
 
 //go:embed all:frontend/dist/spa
@@ -18,15 +20,49 @@ var assets embed.FS
 //go:embed build/appicon.png
 var icon []byte
 
+var AppLogger *zap.Logger
+var BotLogger *zap.Logger
+
+func init() {
+	config := zap.NewProductionConfig()
+	os.MkdirAll("./logs/App/", os.ModePerm)
+	os.Create("./logs/App/app.log")
+
+	config.OutputPaths = []string{"./logs/App/app.log"}
+	var err error
+	AppLogger, err = config.Build()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	os.MkdirAll("./logs/Bot/", os.ModePerm)
+	os.Create("./logs/Bot/bot.log")
+
+	config = zap.NewProductionConfig()
+	config.OutputPaths = []string{"./logs/Bot/bot.log"}
+
+	BotLogger, err = config.Build()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
+
 func main() {
+
 	// Create an instance of the app structure
 	app := NewApp()
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:             "love",
-		Width:             1024,
-		Height:            768,
+		Title:  "Это лечится",
+		Width:  1024,
+		Height: 768,
+		Linux: &linux.Options{
+			Icon: icon,
+		},
 		MinWidth:          1024,
 		MinHeight:         768,
 		MaxWidth:          1280,
@@ -64,18 +100,18 @@ func main() {
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{
 				TitlebarAppearsTransparent: false,
-				HideTitle:                  false,
+				HideTitle:                  true,
 				HideTitleBar:               false,
 				FullSizeContent:            false,
 				UseToolbar:                 false,
 				HideToolbarSeparator:       true,
 			},
 			Appearance:           mac.NSAppearanceNameDarkAqua,
-			WebviewIsTransparent: true,
+			WebviewIsTransparent: false,
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
 				Title:   "love",
-				Message: "",
+				Message: "HELLO BOY",
 				Icon:    icon,
 			},
 		},

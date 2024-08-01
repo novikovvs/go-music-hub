@@ -6,6 +6,14 @@ export function CreateRoom() {
   return window['go']['main']['App']['CreateRoom']();
 }
 
+export function CreateRoomBot(arg1) {
+  return window['go']['main']['App']['CreateRoomBot'](arg1);
+}
+
+export function GetLibrary() {
+  return window['go']['main']['App']['GetLibrary']();
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }

@@ -1,25 +1,47 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="bg-dark">
       <q-toolbar>
+        <q-btn flat @click="toggleLeftDrawer" dense icon="audio_file"/>
         <q-toolbar-title>
-          Quasar App
+          Это лечится музыкой
         </q-toolbar-title>
+        <q-btn flat @click="$router.push('/')" dense label="Бот"/>
+        <q-btn flat @click="$router.push('/player')" dense label="Проигрыватель"/>
       </q-toolbar>
     </q-header>
 
+    <q-drawer
+      v-model="leftDrawerOpen"
+      :breakpoint="700"
+      elevated
+      class="bg-dark text-white"
+    >
+      <q-scroll-area class="fit">
+        <library-component></library-component>
+      </q-scroll-area>
+    </q-drawer>
+
+
     <q-page-container>
-      <router-view />
+      <router-view/>
     </q-page-container>
   </q-layout>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
+<script lang="ts">
+import {defineComponent} from 'vue';
+import LibraryComponent from "components/LibraryComponent.vue";
 
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
-}
+export default defineComponent({
+  components: {LibraryComponent},
+  data: () => ({
+    leftDrawerOpen: false
+  }),
+  methods: {
+    toggleLeftDrawer() {
+      this.leftDrawerOpen = !this.leftDrawerOpen
+    }
+  }
+})
 </script>

@@ -1,76 +1,94 @@
 <template>
   <div>
-    <q-btn v-if="!addr && !loading" color="white" text-color="black" label="Start" @click="setup"/>
-    <q-skeleton v-if="loading" type="QBtn"/>
-
-    <q-card v-if="addr && !loading" flat bordered class="my-card">
+    <q-card flat bordered class="my-card">
       <q-card-section>
         <div class="row items-center no-wrap">
-          <div class="col">
-            <div class="text-h6">Адрес комнаты</div>
+          <div class="col col-2">
+            <q-btn round icon="sync" size="sm" @click="checkAlive" :loading="syncing">
+              <template v-slot:loading>
+                <q-spinner-gears/>
+              </template>
+            </q-btn>
+          </div>
+          <div class="col col-4">
+            <div class="text-h6 block">
+              Бот
+              <q-badge rounded :color="botAlive ? `green` : `red`"/>
+            </div>
           </div>
         </div>
       </q-card-section>
 
       <q-card-section>
-        <q-input outlined v-model="addr" readonly @click="copyAddr"/>
+        <q-input outlined v-model="addr" label="Апи ключ" :readonly="botAlive"/>
       </q-card-section>
 
       <q-separator/>
 
       <q-card-actions class=" flex-center">
-        <q-btn size="md" class="flex-sm" color="red" text-color="black" label="Остановить" @click="stop"/>
+        <q-btn v-if="!botAlive" color="white" text-color="black" label="Запустить" @click="setup" :loading="loading">
+          <template v-slot:loading>
+            <q-spinner-gears/>
+          </template>
+        </q-btn>
+        <q-btn v-else size="md" class="flex-sm" color="red" text-color="black" label="Остановить" @click="stop"
+               :loading="loading">
+          <template v-slot:loading>
+            <q-spinner-gears/>
+          </template>
+        </q-btn>
       </q-card-actions>
     </q-card>
   </div>
 </template>
 
-<script setup lang="ts">
-import {CreateRoom, StopSrv} from "app/wailsjs/go/main/App";
-import {ref} from "vue";
-</script>
-
 <script lang="ts">
-import {CreateRoom, RoomAlive, StopSrv} from "app/wailsjs/go/main/App";
-import {ref} from "vue";
-import {Notify} from 'quasar'
-
+import {CreateRoomBot, RoomAlive, StopSrv} from 'app/wailsjs/go/main/App';
 
 export default {
   data: () => ({
-    addr: null,
+    addr: "6628159958:AAH5y_ZIapl394DuCf-sN9hd7yltUxwnsCg",
     loading: false,
+    botAlive: false,
+    syncing: false,
   }),
   mounted() {
-    RoomAlive().then((r: boolean | string) => {
-      this.addr = r
+    RoomAlive().then((r: string) => {
+      if (r.length > 0) {
+        this.botAlive = true
+        this.addr = r
+        return
+      }
+      this.botAlive = false
     })
   },
   methods: {
-    setup() {
-      this.loading = true
-      CreateRoom().then((a) => {
-          this.loading = false
-          this.addr = a
-        }
-      )
-    },
     stop() {
       this.loading = true
-
-      StopSrv().then((r) => {
+      StopSrv().then(() => {
         this.loading = false
-
-        r ? this.addr = null : this.addr = this.addr
+        this.botAlive = false
       })
     },
-    async copyAddr() {
-      try {
-        await navigator.clipboard.writeText(this.addr);
-        Notify.create({message: 'Скопировано!', color: "green", progress: true, timeout: 1000})
-      } catch ($e) {
-        Notify.create({message: 'Неудалось скопировать!', color: "red", progress: true, timeout: 1000})
-      }
+
+    setup() {
+      this.loading = true
+      CreateRoomBot(this.addr).then((r) => {
+        this.checkAlive()
+        this.loading = false
+      })
+    },
+
+    checkAlive() {
+      this.syncing = true
+      RoomAlive().then((r: string) => {
+        this.syncing = false
+        if (r.length > 0) {
+          this.botAlive = true
+          return
+        }
+        this.botAlive = false
+      })
     }
   }
 }

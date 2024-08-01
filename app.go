@@ -54,3 +54,11 @@ func (a *App) StopSrv() bool {
 func (a *App) RoomAlive() string {
 	return RoomExist()
 }
+
+func (a *App) CreateRoomBot(apiKey string) string {
+	return StartRoomBot(apiKey)
+}
+
+func (a *App) GetLibrary() []TrackLibrary {
+	return getLibrary()
+}
