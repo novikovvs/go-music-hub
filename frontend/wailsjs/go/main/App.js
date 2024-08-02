@@ -10,12 +10,28 @@ export function CreateRoomBot(arg1) {
   return window['go']['main']['App']['CreateRoomBot'](arg1);
 }
 
+export function CurrentTrack() {
+  return window['go']['main']['App']['CurrentTrack']();
+}
+
 export function GetLibrary() {
   return window['go']['main']['App']['GetLibrary']();
 }
 
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
+}
+
+export function NextMusic() {
+  return window['go']['main']['App']['NextMusic']();
+}
+
+export function PauseMusic() {
+  return window['go']['main']['App']['PauseMusic']();
+}
+
+export function PlayMusic() {
+  return window['go']['main']['App']['PlayMusic']();
 }
 
 export function RoomAlive() {

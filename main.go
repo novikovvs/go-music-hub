@@ -22,32 +22,76 @@ var icon []byte
 
 var AppLogger *zap.Logger
 var BotLogger *zap.Logger
+var PlayerLogger *zap.Logger
 
-func init() {
-	config := zap.NewProductionConfig()
-	os.MkdirAll("./logs/App/", os.ModePerm)
-	os.Create("./logs/App/app.log")
-
-	config.OutputPaths = []string{"./logs/App/app.log"}
+func initAppLogger() {
 	var err error
+
+	err = os.MkdirAll("./logs/App/", os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = os.Create("./logs/App/app.log")
+	if err != nil {
+		panic(err)
+	}
+
+	config := zap.NewProductionConfig()
+	config.OutputPaths = []string{"./logs/App/app.log"}
 	AppLogger, err = config.Build()
 
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+func initBotLogger() {
+	var err error
 
-	os.MkdirAll("./logs/Bot/", os.ModePerm)
-	os.Create("./logs/Bot/bot.log")
+	err = os.MkdirAll("./logs/Bot/", os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	config = zap.NewProductionConfig()
+	_, err = os.Create("./logs/Bot/bot.log")
+	if err != nil {
+		panic(err)
+	}
+
+	config := zap.NewProductionConfig()
 	config.OutputPaths = []string{"./logs/Bot/bot.log"}
-
 	BotLogger, err = config.Build()
 
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+func initPlayerLogger() {
+	var err error
 
+	err = os.MkdirAll("./logs/Player/", os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = os.Create("./logs/Player/player.log")
+	if err != nil {
+		panic(err)
+	}
+
+	config := zap.NewProductionConfig()
+	config.OutputPaths = []string{"./logs/Player/player.log"}
+	PlayerLogger, err = config.Build()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func init() {
+	initAppLogger()
+	initBotLogger()
+	initPlayerLogger()
 }
 
 func main() {

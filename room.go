@@ -204,8 +204,23 @@ func botMessageHandle(updates tgbotapi.UpdatesChannel) {
 			default:
 				{
 					if update.Message.Audio != nil {
-						BotLogger.Info(string(update.Message.Audio.FileID))
-						downloadFile(update.Message.Audio)
+						BotLogger.Info(update.Message.Audio.FileID)
+						go downloadFile(update.Message.Audio)
+						msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Спасибо! Ваш аудиофайл поставлен на скачивание")
+						_, err := Bot.Send(msg)
+						if err != nil {
+							return
+						}
+					}
+
+					if update.Message.Document != nil {
+						BotLogger.Info(update.Message.Document.FileID)
+						//go downloadFile(update.Message.Document.FileID)
+						msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Спасибо! Ваш аудиофайл поставлен на скачивание")
+						_, err := Bot.Send(msg)
+						if err != nil {
+							return
+						}
 					}
 
 				}
