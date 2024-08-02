@@ -47,7 +47,7 @@ import {CreateRoomBot, RoomAlive, StopSrv} from 'app/wailsjs/go/main/App';
 
 export default {
   data: () => ({
-    addr: "6628159958:AAH5y_ZIapl394DuCf-sN9hd7yltUxwnsCg",
+    addr: "",
     loading: false,
     botAlive: false,
     syncing: false,
