@@ -62,3 +62,19 @@ func (a *App) CreateRoomBot(apiKey string) string {
 func (a *App) GetLibrary() []TrackLibrary {
 	return getLibrary()
 }
+
+func (a *App) PlayMusic() {
+	Play()
+}
+
+func (a *App) PauseMusic() {
+	go Pause()
+}
+
+func (a *App) NextMusic() {
+	go Next()
+}
+
+func (a *App) CurrentTrack() Track {
+	return GetCurrentTrack()
+}

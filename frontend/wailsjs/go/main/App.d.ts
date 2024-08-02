@@ -6,9 +6,17 @@ export function CreateRoom():Promise<string>;
 
 export function CreateRoomBot(arg1:string):Promise<string>;
 
+export function CurrentTrack():Promise<main.Track>;
+
 export function GetLibrary():Promise<Array<main.TrackLibrary>>;
 
 export function Greet(arg1:string):Promise<string>;
+
+export function NextMusic():Promise<void>;
+
+export function PauseMusic():Promise<void>;
+
+export function PlayMusic():Promise<void>;
 
 export function RoomAlive():Promise<string>;
 
