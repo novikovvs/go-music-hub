@@ -154,7 +154,7 @@ func main() {
 			WebviewIsTransparent: false,
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
-				Title:   "love",
+				Title:   "GM Hub",
 				Message: "HELLO BOY",
 				Icon:    icon,
 			},
