@@ -92,6 +92,8 @@ func init() {
 	initAppLogger()
 	initBotLogger()
 	initPlayerLogger()
+
+	UpdateChan = make(chan Track)
 }
 
 func main() {

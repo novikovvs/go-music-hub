@@ -214,9 +214,7 @@ func botMessageHandle(updates tgbotapi.UpdatesChannel) {
 					}
 
 					if update.Message.Document != nil {
-						BotLogger.Info(update.Message.Document.FileID)
-						//go downloadFile(update.Message.Document.FileID)
-						msg = tgbotapi.NewMessage(update.Message.Chat.ID, "Спасибо! Ваш аудиофайл поставлен на скачивание")
+						msg = tgbotapi.NewMessage(update.Message.Chat.ID, "К сожалению, поддерживается только mp3 :(")
 						_, err := Bot.Send(msg)
 						if err != nil {
 							return
@@ -257,13 +255,25 @@ func downloadFile(file *tgbotapi.Audio) {
 	if err != nil {
 		BotLogger.Error(err.Error())
 	}
+	var filePath string
+	if len(file.Performer) > 0 {
+		filePath = "downloads/" + file.Performer + " - " + file.Title + ".mp3"
+	} else {
+		filePath = "downloads/" + file.FileName
+	}
 
-	out, err := os.Create("downloads/" + file.Performer + " - " + file.Title + ".mp3")
+	out, _ := os.Create(filePath)
+
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		BotLogger.Info(err.Error())
+	}
+
+	UpdateChan <- Track{
+		Label: out.Name(),
+		Path:  filePath,
 	}
 
 }

@@ -1,14 +1,18 @@
 package main
 
+var UpdateChan chan Track
+
 type Node struct {
 	value Track
 	next  *Node //use of linked list to implements queue
 }
 
 type TrackQueue struct {
-	head *Node
-	tail *Node
-	size int
+	head        *Node
+	tail        *Node
+	size        int
+	UpdateChan  chan Track
+	StopQueuing chan bool
 }
 
 func (qe *TrackQueue) Enqueue(value Track) {
@@ -38,9 +42,27 @@ func (qe *TrackQueue) Size() int {
 	return qe.size
 }
 
+func (qe *TrackQueue) SyncUpdate() {
+	for {
+		select {
+		case track := <-qe.UpdateChan:
+			{
+				qe.Enqueue(track)
+			}
+		case <-qe.StopQueuing:
+			{
+				return
+			}
+		}
+	}
+}
+
 func newMusicQueue() *TrackQueue {
-	queue := TrackQueue{}
+	queue := TrackQueue{
+		UpdateChan: UpdateChan,
+	}
 	loadItems(&queue)
+	go queue.SyncUpdate()
 	return &queue
 }
 
